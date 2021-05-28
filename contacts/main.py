@@ -12,7 +12,7 @@ from .views import Window
 
 
 def main():
-    '''RP Contacts main function.'''
+    '''Contacts main function.'''
 
     # Create the application:
     app = QApplication(sys.argv)

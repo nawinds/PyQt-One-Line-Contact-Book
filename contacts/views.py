@@ -2,7 +2,6 @@
 views.py
 
     Provides views to manage the contacts table.
-
 """
 from PyQt5.QtWidgets import (
     QAbstractItemView,
@@ -16,10 +15,10 @@ from PyQt5.QtWidgets import (
 
 
 class Window(QMainWindow):
-    '''Main Window.'''
+    '''Main Window'''
 
     def __init__(self, parent=None):
-        '''Initializer.'''
+        '''Initializer'''
         super().__init__(parent)
         self.setWindowTitle("Contacts Book")
         self.resize(550, 250)
@@ -31,8 +30,9 @@ class Window(QMainWindow):
 
         self.setupUI()
 
+
     def setupUI(self):
-        '''Setup the main window\'s GUI.'''
+        '''Setup the main window's GUI.'''
 
         # Create the table view widget:
         self.table = QTableView()

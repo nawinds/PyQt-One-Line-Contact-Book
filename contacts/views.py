@@ -49,9 +49,11 @@ class Window(QMainWindow):
 
         # Create Buttons:
         self.addButton = QPushButton('Add...')
-        self.addButton.clicked.connect(self.openAddDialog())
+        self.addButton.clicked.connect(self.openAddDialog)
         self.deleteButton = QPushButton('Delete')
+        self.deleteButton.clicked.connect(self.deleteContact)
         self.clearAllButton = QPushButton('Clear All')
+        self.clearAllButton.clicked.connect(self.clearContacts)
 
         # Lay Out GUI:
         layout = QVBoxLayout()
@@ -63,12 +65,41 @@ class Window(QMainWindow):
         self.layout.addLayout(layout)
 
 
-        def openAddDialog(self):
-            '''Open the Add Contact dialog.'''
-            dialog = AddDialog(self)
-            if (dialog.exec() == QDialog.Accepted):
-                self.contactsModel.addContact(dialog.data)
-                self.table.resizeColumnsToContents()
+    def openAddDialog(self):
+        '''Open the Add Contact dialog.'''
+        dialog = AddDialog(self)
+        dialog.resize(275, 150)
+        if (dialog.exec() == QDialog.Accepted):
+            self.contactsModel.addContact(dialog.data)
+            self.table.resizeColumnsToContents()
+
+
+    def deleteContact(self):
+        '''Deletes the selected contact from the database.'''
+        row = self.table.currentIndex().row()
+        if (row < 0):
+            return
+        
+        msgBox = QMessageBox.warning(
+            self,
+            'Warning!',
+            "Do you want to remove the selected entry?",
+            QMessageBox.Ok | QMessageBox.Cancel,
+        )
+        if (msgBox == QMessageBox.Ok):
+            self.contactsModel.deleteContact(row)
+
+
+    def clearContacts(self):
+        '''Removes all contacts from database.'''
+        msgBox = QMessageBox.warning(
+            self,
+            'WARNING!',
+            "Do you want to remove all of the entries?",
+            QMessageBox.Ok | QMessageBox.Cancel,
+        )
+        if (msgBox == QMessageBox.Ok):
+            self.contactsModel.clearContacts()
 
 
 class AddDialog(QDialog):
@@ -112,23 +143,50 @@ class AddDialog(QDialog):
         self.layout.addWidget(self.buttonBox)
 
 
-        def accept(self):
-            '''Accept the data provided through the dialog.'''
-            self.data = []
-            for field in (self.nameField, self.emailField, self.statusField):
-                if not field.text():
-                    QMessageBox.critical(
-                        self,
-                        'Error!',
-                        f"You must provide an entry's {field.objectName()}",
-                    )
-                    # Reset data:
-                    self.data = None
-                    return
-
+    def accept(self):
+        '''Accept the data provided through the dialog.'''
+        self.data = []
+        # [CHECK] Fields are not empty:
+        for field in (self.nameField, self.emailField, self.statusField):
+            if not field.text():
+                QMessageBox.critical(
+                    self,
+                    'Error!',
+                    f"You must provide an entry's {field.objectName()}",
+                )
+                # Reset data:
+                self.data = None
+                return
+            else:
                 self.data.append(field.text())
 
-            if not self.data:
-                return
+        # [CHECK] Status is valid:
+        statusCodes = [
+            'COMPLETE',
+            'WAITING_ON_VENDOR',
+            'INACTIVE_180',
+            'INACTIVE_365',
+            'NO_PRODUCTS',
+            'NO_RESPONSE',
+            'REQUIRES_SHIPPING',
+            'PRODUCTS_DISABLED',
+            'CATEGORY_DISABLED',
+            'ACCOUNT_DISABLED',
+            'NO_STATUS',
+        ]
+        if self.statusField.text() not in statusCodes:
+            status_list = [code for code in statusCodes]
+            QMessageBox.critical(
+                self,
+                'Error!',
+                "The status code provided is invalid. Valid options include:"
+                f"\n{status_list}",
+            )
+            # Reset data:
+            self.data = None
+            return
 
-            super().accept()
+        if not self.data:
+            return
+
+        super().accept()

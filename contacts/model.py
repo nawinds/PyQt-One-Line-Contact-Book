@@ -34,3 +34,19 @@ class ContactsModel:
             self.model.setData(self.model.index(rows, colIndex + 1), field)
         self.model.submitAll()
         self.model.select()
+
+
+    def deleteContact(self, row):
+        '''Removes a contact from the databse.'''
+        self.model.removeRow(row)
+        self.model.submitAll()
+        self.model.select()
+
+
+    def clearContacts(self):
+        '''Removes all contact from the database.'''
+        self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)
+        self.model.removeRows(0, self.model.rowCount())
+        self.model.submitAll()
+        self.model.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model.select()

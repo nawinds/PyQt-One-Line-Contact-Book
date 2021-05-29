@@ -19,7 +19,7 @@ def main():
     app = QApplication(sys.argv)
     
     # Connect to the database before creating any window:
-    if not createConnection("contracts.sqlite"):
+    if not createConnection("contacts.sqlite"):
         sys.exit(1)
 
     # Create the main window:
@@ -27,4 +27,4 @@ def main():
     window.show()
 
     # Run the event loop:
-    sys.exit(app.exec())
+    sys.exit(app.exec_())

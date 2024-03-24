@@ -29,7 +29,7 @@ class Window(QMainWindow):
         super().__init__(parent)
         self.setWindowTitle('Contacts Book')
         self.resize(650, 350)
-
+        # TODO: Add icon to window...
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
         self.layout = QHBoxLayout()
@@ -122,11 +122,14 @@ class AddDialog(QDialog):
         self.nameField.setObjectName('Name')
         self.emailField = QLineEdit()
         self.emailField.setObjectName('Email')
+        self.statusField = QLineEdit()
+        self.statusField.setObjectName('Status')
 
         # Lay out the data fields:
         layout = QFormLayout()
         layout.addRow('Name:', self.nameField)
         layout.addRow('Email:', self.emailField)
+        layout.addRow('Status:', self.statusField)
         self.layout.addLayout(layout)
         
         # Add standard buttons to the dialog and connect them:
@@ -144,7 +147,7 @@ class AddDialog(QDialog):
         '''Accept the data provided through the dialog.'''
         self.data = []
         # [CHECK] Fields are not empty:
-        for field in (self.nameField, self.emailField):
+        for field in (self.nameField, self.emailField, self.statusField):
             if not field.text():
                 QMessageBox.critical(
                     self,
@@ -156,6 +159,32 @@ class AddDialog(QDialog):
                 return
             else:
                 self.data.append(field.text())
+
+        # [CHECK] Status is valid:
+        statusCodes = [
+            'COMPLETE',
+            'WAITING_ON_VENDOR',
+            'INACTIVE_180',
+            'INACTIVE_365',
+            'NO_PRODUCTS',
+            'NO_RESPONSE',
+            'REQUIRES_SHIPPING',
+            'PRODUCTS_DISABLED',
+            'CATEGORY_DISABLED',
+            'ACCOUNT_DISABLED',
+            'NO_STATUS',
+        ]
+        if self.statusField.text() not in statusCodes:
+            status_list = [code for code in statusCodes]
+            QMessageBox.critical(
+                self,
+                'Error!',
+                "The status code provided is invalid. Valid options include:"
+                f"\n{status_list}",
+            )
+            # Reset data:
+            self.data = None
+            return
 
         if not self.data:
             return
